@@ -3,34 +3,50 @@
 !wget https://raw.githubusercontent.com/yotam-biu/python_utils/main/lab_setup_do_not_edit.py -O /content/lab_setup_do_not_edit.py
 import lab_setup_do_not_edit
 import pandas as pd
-
-# 'file_name.extension' should be the path to your file
-df = pd.read_csv('/content/parkinsons.csv')
+df = pd.read_csv('parkinsons.csv')
+# Define input features
 input_features = ['MDVP:Fo(Hz)', 'MDVP:Jitter(%)']
+
+# Define output feature
 output_feature = 'status'
+
+print(f"Input Features: {input_features}")
+print(f"Output Feature: {output_feature}")
+from sklearn.preprocessing import MinMaxScaler
+
+# Initialize the MinMaxScaler
+scaler = MinMaxScaler()
+
+# Apply scaling to the input features
+df[input_features] = scaler.fit_transform(df[input_features])
+from sklearn.model_selection import train_test_split
 
 X = df[input_features]
 y = df[output_feature]
-from sklearn.preprocessing import MinMaxScaler
 
-scaler = MinMaxScaler()
-X_scaled = scaler.fit_transform(X)
-from sklearn.model_selection import train_test_split
+X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+print(f"Training set size: {len(X_train)} samples")
+print(f"Validation set size: {len(X_val)} samples")
 from sklearn.neighbors import KNeighborsClassifier
 
-model = KNeighborsClassifier(n_neighbors=5) # Using K-Nearest Neighbors with 5 neighbors
-model.fit(X_train, y_train)
+# Initialize the KNN model
+model = KNeighborsClassifier(n_neighbors=5)
+
 from sklearn.metrics import accuracy_score
 
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
+# Train the model
+model.fit(X_train, y_train)
+
+# Make predictions on the validation set
+y_pred = model.predict(X_val)
+
+# Calculate accuracy
+accuracy = accuracy_score(y_val, y_pred)
 
 print(f"Model Accuracy: {accuracy:.4f}")
 
 if accuracy >= 0.8:
-    print("✅ Model accuracy is at least 0.8!")
+    print("Accuracy target of 0.8 met!")
 else:
-    print("⚠️ Model accuracy is below 0.8. Consider re-evaluating the model or features.")
-    
+    print("Accuracy target of 0.8 not met. Consider re-evaluating features or model.")
