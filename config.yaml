@@ -1,2 +1,2 @@
-path: "path_to_model.joblib
-features: ['feature_A', 'feature_B']
+path: "Aharon_KNN_Parkinsons.joblib"
+features: ['MDVP:Fo(Hz)', 'MDVP:Jitter(%)']
